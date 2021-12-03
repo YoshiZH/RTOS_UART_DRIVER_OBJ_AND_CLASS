@@ -87,16 +87,23 @@
 /* Función de interrupción para botones de setpoint. */
 extern void INT_SWI(void);
 extern void INT_OnOff(void);
+extern void INT_MODO(void);
+extern void INT_COOL(void);
+
 extern void Int_registerInterrupt(uint32_t interruptNumber,
         void (*intHandler)(void));
 
 extern uint32_t getVarOnOff(void);
 extern uint32_t getVarS_IN(void);
 extern uint32_t getVarS_OUT(void);
+extern uint32_t getVarCOOL(void);
+extern uint32_t getVarMODO(void);
 
 
 extern void setVarS_IN(void);
 extern void setVarS_OUT(void);
+extern void setVarCOOL(void);
+extern void setVarMODO(void);
 
 extern void S_IN(void);
 extern void S_OUT(void);

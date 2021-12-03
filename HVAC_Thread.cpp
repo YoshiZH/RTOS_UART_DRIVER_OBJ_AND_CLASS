@@ -1,6 +1,9 @@
 
 #include "HVAC.h"
 #define NUM_MAX_PERSONAS 5
+#define SETPOINT 30
+#define CONTROL PLUS
+
 void apagado(void);
 void encendido(void);
 int i;
@@ -69,6 +72,155 @@ void apagado(void){
         z=getVarOnOff();
     }
 }
+
+#if CONTROL == PLUS
+
+
+//MODO: AUTO -> 0
+//MODO: ON -> 1
+
+//COOL -> 0
+//HEAT -> 1
+
+
+void encendido(void){
+    bool modo,cool, control1=1, control2=1;
+    bool z,anterior=0,ahora,before=0,now;
+    z=1;
+    P1->OUT |= 0x01;
+    while(z==1){
+        //OBTENCION DE VALORES PARA EL ENCENDIDO / APAGADO, ENTRADAS Y SALIDAS DE LA TIENDA
+        z=getVarOnOff();
+        modo=getVarMODO();
+        cool=getVarCOOL();
+        //LOGICA DE EVENTOS
+        ahora=modo;
+        if(anterior!=ahora){
+            control1=1;
+        }
+        anterior = modo;
+
+        now=cool;
+        if(before!=now){
+            control2=1;
+        }
+        before = cool;
+        //ACCIONES DEL MODO PLUS
+         if(modo == 0 && control1 == 1){
+            sprintf(buffer,"\rMODO: AUTO.");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<1000000;i++);
+            sprintf(buffer,"\r                                             ");
+            control1 = 0;
+        }
+
+        else if(modo == 1 && control1 == 1){
+            sprintf(buffer,"\rMODO: ON.");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<1000000;i++);
+            sprintf(buffer,"\r                                             ");
+            control1=0;
+        }
+
+        else if(cool == 0 && control2 == 1){
+            sprintf(buffer,"\rCOOL");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<1000000;i++);
+            sprintf(buffer,"\r                                             ");
+            control1 = 0;
+        }
+
+        else if(cool == 1 && control2 == 1){
+            sprintf(buffer,"\rHEAT.");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<1000000;i++);
+            sprintf(buffer,"\r                                             ");
+            control1=0;
+        }
+        //MODO AUTO Y COOL
+        else if(modo == 0 && cool == 0){
+
+            sprintf(buffer,"\r                                                ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            sprintf(buffer,"\rDetectando temperatura del edificio");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<10000000;i++);
+            Dispara_ADC();
+            lectura=ReadADC(CH0);
+            ConvToNum();
+            sprintf(buffer,"\r                                                 ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            sprintf(buffer,"\rLa temperatura es de: %f",lectura);
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<10000000;i++);
+            sprintf(buffer,"\r                                                 ");
+            prueba->UART_sPrintf(UART_1,buffer);
+
+            if(lectura>SETPOINT){
+                sprintf(buffer,"\rFAN: ON.");
+                prueba->UART_sPrintf(UART_1,buffer);
+                for(i=0;i<1000000;i++);
+                sprintf(buffer,"\r                                             ");
+            }
+            else{
+                sprintf(buffer,"\rFAN: OFF.");
+                prueba->UART_sPrintf(UART_1,buffer);
+                for(i=0;i<1000000;i++);
+                sprintf(buffer,"\r                                             ");
+            }
+
+        }
+
+        else if(modo == 0 && cool == 1){
+
+            sprintf(buffer,"\r                                                ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            sprintf(buffer,"\rDetectando temperatura del edificio");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<10000000;i++);
+            Dispara_ADC();
+            lectura=ReadADC(CH0);
+            ConvToNum();
+            sprintf(buffer,"\r                                                 ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            sprintf(buffer,"\rLa temperatura es de: %f",lectura);
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<10000000;i++);
+            sprintf(buffer,"\r                                                 ");
+            prueba->UART_sPrintf(UART_1,buffer);
+
+            if(lectura<SETPOINT){
+                sprintf(buffer,"\rFAN: ON.");
+                prueba->UART_sPrintf(UART_1,buffer);
+                for(i=0;i<1000000;i++);
+                sprintf(buffer,"\r                                             ");
+            }
+            else{
+                sprintf(buffer,"\rFAN: OFF.");
+                prueba->UART_sPrintf(UART_1,buffer);
+                for(i=0;i<1000000;i++);
+                sprintf(buffer,"\r                                             ");
+            }
+
+        }
+        else if(modo == 1 && cool == 0){
+
+                sprintf(buffer,"\rFAN: ON.");
+                prueba->UART_sPrintf(UART_1,buffer);
+                for(i=0;i<1000000;i++);
+                sprintf(buffer,"\r                                             ");
+        }
+
+        else{
+            sprintf(buffer,"\rFAN: OFF.");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<1000000;i++);
+            sprintf(buffer,"\r                                             ");
+        }
+    }
+}
+
+#else
 
 void encendido(void){
     uint32_t y,x,conteo=0;
@@ -161,6 +313,6 @@ void encendido(void){
         }
     }
 }
-
+#endif
 
 

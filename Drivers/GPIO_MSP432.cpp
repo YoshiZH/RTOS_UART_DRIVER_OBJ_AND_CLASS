@@ -9,8 +9,8 @@
  // Updated:         11/2018
 
 #include "HVAC.h"     // Configuración del sistema.
-uint32_t y,z;
-bool x=0;
+uint32_t y,z ;
+bool x=0,cool=0, modo=0;
 
 /* Declaración del arreglo GPIO_PORT_TO_BASE
  * En el cual se encuentran las direcciones en donde comienzan
@@ -35,6 +35,16 @@ void INT_OnOff(void){
  x=!x;
 }
 
+void INT_MODO(void){
+    GPIO_clear_interrupt_flag(P3,B2);
+    modo =! modo;
+}
+
+void INT_COOL(void){
+    GPIO_clear_interrupt_flag(P4,B0);
+    cool =! modo;
+}
+
 void S_OUT(void){
     z=1;
 }
@@ -55,6 +65,14 @@ uint32_t getVarS_OUT(void){
     return z;
 }
 
+uint32_t getVarMODO(void){
+    return modo;
+}
+
+uint32_t getVarCOOL(void){
+    return cool;
+}
+
 
 void setVarS_IN(void){
     y=0;
@@ -62,6 +80,14 @@ void setVarS_IN(void){
 
 void setVarS_OUT(void){
     z=0;
+}
+
+void setVarMODO(void){
+    modo=0;
+}
+
+void setVarCOOL(void){
+    cool=0;
 }
 
 void INT_SWI(void)
@@ -93,16 +119,21 @@ void Inicializar_GPIO(void)
     GPIO_interruptEdgeSelect(SETPOINT_PORT,BIT(B7), GPIO_HIGH_TO_LOW_TRANSITION);
     GPIO_interruptEdgeSelect(2,BIT4, GPIO_HIGH_TO_LOW_TRANSITION);
     GPIO_interruptEdgeSelect(3,BIT2, GPIO_HIGH_TO_LOW_TRANSITION);
+    GPIO_interruptEdgeSelect(4,BIT0, GPIO_HIGH_TO_LOW_TRANSITION);
 
     // Preparativos de interrupción.
     GPIO_clear_interrupt_flag(P1,B6);
     GPIO_clear_interrupt_flag(P1,B7);
     GPIO_clear_interrupt_flag(P2,B4);
     GPIO_clear_interrupt_flag(P3,B2);
+    GPIO_clear_interrupt_flag(P4,B0);
+
+
     GPIO_enable_bit_interrupt(P1,B6);
     GPIO_enable_bit_interrupt(P1,B7);
     GPIO_enable_bit_interrupt(P2,B4);
     GPIO_enable_bit_interrupt(P3,B2);
+    GPIO_enable_bit_interrupt(P4,B0);
 
     // Se necesitan más entradas, se usarán las siguientes:
     GPIO_setBitIO(FAN_PORT, FAN_ON, ENTRADA);
@@ -122,8 +153,11 @@ void Inicializar_GPIO(void)
     Int_registerInterrupt(INT_PORT2, INT_OnOff);  //Interrupcion puerto 2
     Int_enableInterrupt(INT_PORT2);
 
-    //Int_registerInterrupt(INT_PORT3, INT_OnOff);  //Interrupcion puerto 3
-    //Int_enableInterrupt(INT_PORT3);
+    Int_registerInterrupt(INT_PORT3, INT_MODO);  //Interrupcion puerto 3
+    Int_enableInterrupt(INT_PORT3);
+
+    Int_registerInterrupt(INT_PORT4, INT_COOL);  //Interrupcion puerto 3
+    Int_enableInterrupt(INT_PORT3);
 }
 
 /*****************************************************************************
