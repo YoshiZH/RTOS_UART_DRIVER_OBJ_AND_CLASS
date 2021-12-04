@@ -115,6 +115,5 @@ extern void setVarMODO(void);
 extern void S_IN(void);
 extern void S_OUT(void);
 
-UART *prueba;
 
 #endif

@@ -43,6 +43,6 @@
 #define BSP_LED3_PORT 2
 #define BSP_LED4_PORT 2
 
-
+UART *prueba;
 
 #endif /* BSP_H_ */
