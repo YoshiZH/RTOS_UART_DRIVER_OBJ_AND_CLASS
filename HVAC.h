@@ -89,6 +89,8 @@ extern void INT_SWI(void);
 extern void INT_OnOff(void);
 extern void INT_MODO(void);
 extern void INT_COOL(void);
+extern void INT_P3(void);
+extern void INT_P4(void);
 
 extern void Int_registerInterrupt(uint32_t interruptNumber,
         void (*intHandler)(void));

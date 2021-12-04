@@ -2,6 +2,8 @@
 #include "HVAC.h"
 #define NUM_MAX_PERSONAS 5
 #define SETPOINT 30
+#define PLUS 0
+#define NO_PLUS 1
 #define CONTROL PLUS
 
 void apagado(void);
@@ -63,7 +65,7 @@ void apagado(void){
     bool z=0;
     P1->OUT &= ~0x01;
 
-    sprintf(buffer,"\r                                             ");
+    sprintf(buffer,"\r                                                ");
     prueba->UART_sPrintf(UART_1,buffer);
     sprintf(buffer,"\rSystem: OFF");
     prueba->UART_sPrintf(UART_1,buffer);
@@ -85,7 +87,7 @@ void apagado(void){
 
 void encendido(void){
     bool modo,cool, control1=1, control2=1;
-    bool z,anterior=0,ahora,before=0,now;
+    bool z,anterior=0,ahora,before=0,now,aux=1;
     z=1;
     P1->OUT |= 0x01;
     while(z==1){
@@ -93,113 +95,105 @@ void encendido(void){
         z=getVarOnOff();
         modo=getVarMODO();
         cool=getVarCOOL();
+
         //LOGICA DE EVENTOS
-        ahora=modo;
-        if(anterior!=ahora){
+        ahora = modo;
+        if(anterior != ahora){
             control1=1;
         }
         anterior = modo;
 
-        now=cool;
-        if(before!=now){
-            control2=1;
+        now = cool;
+        if(before != now){
+            control2 = 1;
         }
         before = cool;
+
+        if(aux==1){
+            sprintf(buffer,"\r                                             ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            sprintf(buffer,"\rSystem: ON");
+            prueba->UART_sPrintf(UART_1,buffer);
+            for(i=0;i<10000000;i++);
+            sprintf(buffer,"\r                                             ");
+            prueba->UART_sPrintf(UART_1,buffer);
+            aux=0;
+        }
         //ACCIONES DEL MODO PLUS
          if(modo == 0 && control1 == 1){
             sprintf(buffer,"\rMODO: AUTO.");
             prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<1000000;i++);
+            for(i=0;i<10000000;i++);
             sprintf(buffer,"\r                                             ");
+            prueba->UART_sPrintf(UART_1,buffer);
             control1 = 0;
         }
 
         else if(modo == 1 && control1 == 1){
             sprintf(buffer,"\rMODO: ON.");
             prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<1000000;i++);
+            for(i=0;i<10000000;i++);
             sprintf(buffer,"\r                                             ");
-            control1=0;
+            prueba->UART_sPrintf(UART_1,buffer);
+            control1 = 0;
         }
 
         else if(cool == 0 && control2 == 1){
             sprintf(buffer,"\rCOOL");
             prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<1000000;i++);
+            for(i=0;i<10000000;i++);
             sprintf(buffer,"\r                                             ");
-            control1 = 0;
+            prueba->UART_sPrintf(UART_1,buffer);
+            control2 = 0;
         }
 
         else if(cool == 1 && control2 == 1){
             sprintf(buffer,"\rHEAT.");
             prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<1000000;i++);
+            for(i=0;i<10000000;i++);
             sprintf(buffer,"\r                                             ");
-            control1=0;
+            prueba->UART_sPrintf(UART_1,buffer);
+            control2 = 0;
         }
         //MODO AUTO Y COOL
         else if(modo == 0 && cool == 0){
-
-            sprintf(buffer,"\r                                                ");
-            prueba->UART_sPrintf(UART_1,buffer);
-            sprintf(buffer,"\rDetectando temperatura del edificio");
-            prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<10000000;i++);
             Dispara_ADC();
             lectura=ReadADC(CH0);
             ConvToNum();
-            sprintf(buffer,"\r                                                 ");
-            prueba->UART_sPrintf(UART_1,buffer);
-            sprintf(buffer,"\rLa temperatura es de: %f",lectura);
-            prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<10000000;i++);
-            sprintf(buffer,"\r                                                 ");
-            prueba->UART_sPrintf(UART_1,buffer);
-
             if(lectura>SETPOINT){
                 sprintf(buffer,"\rFAN: ON.");
                 prueba->UART_sPrintf(UART_1,buffer);
                 for(i=0;i<1000000;i++);
                 sprintf(buffer,"\r                                             ");
+                prueba->UART_sPrintf(UART_1,buffer);
             }
             else{
                 sprintf(buffer,"\rFAN: OFF.");
                 prueba->UART_sPrintf(UART_1,buffer);
                 for(i=0;i<1000000;i++);
                 sprintf(buffer,"\r                                             ");
+                prueba->UART_sPrintf(UART_1,buffer);
             }
 
         }
 
         else if(modo == 0 && cool == 1){
-
-            sprintf(buffer,"\r                                                ");
-            prueba->UART_sPrintf(UART_1,buffer);
-            sprintf(buffer,"\rDetectando temperatura del edificio");
-            prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<10000000;i++);
             Dispara_ADC();
             lectura=ReadADC(CH0);
             ConvToNum();
-            sprintf(buffer,"\r                                                 ");
-            prueba->UART_sPrintf(UART_1,buffer);
-            sprintf(buffer,"\rLa temperatura es de: %f",lectura);
-            prueba->UART_sPrintf(UART_1,buffer);
-            for(i=0;i<10000000;i++);
-            sprintf(buffer,"\r                                                 ");
-            prueba->UART_sPrintf(UART_1,buffer);
-
             if(lectura<SETPOINT){
                 sprintf(buffer,"\rFAN: ON.");
                 prueba->UART_sPrintf(UART_1,buffer);
                 for(i=0;i<1000000;i++);
                 sprintf(buffer,"\r                                             ");
+                prueba->UART_sPrintf(UART_1,buffer);
             }
             else{
                 sprintf(buffer,"\rFAN: OFF.");
                 prueba->UART_sPrintf(UART_1,buffer);
                 for(i=0;i<1000000;i++);
                 sprintf(buffer,"\r                                             ");
+                prueba->UART_sPrintf(UART_1,buffer);
             }
 
         }
@@ -209,6 +203,7 @@ void encendido(void){
                 prueba->UART_sPrintf(UART_1,buffer);
                 for(i=0;i<1000000;i++);
                 sprintf(buffer,"\r                                             ");
+                prueba->UART_sPrintf(UART_1,buffer);
         }
 
         else{
@@ -216,6 +211,7 @@ void encendido(void){
             prueba->UART_sPrintf(UART_1,buffer);
             for(i=0;i<1000000;i++);
             sprintf(buffer,"\r                                             ");
+            prueba->UART_sPrintf(UART_1,buffer);
         }
     }
 }
