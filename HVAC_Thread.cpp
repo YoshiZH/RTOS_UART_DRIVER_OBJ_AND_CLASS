@@ -39,15 +39,14 @@ void alarma(void){
     }
 
 }
-UART *prueba = new UART;
+
 
 void *HVAC_Thread(void *arg0)
 {
     /*INICIALIZANDO COMPONENTES*/
      SystemInit();
      Inicializar_GPIO();
-     prueba->UART_Limpiar();
-     prueba->UART_inicializacion();
+     UART_initPD();
      Inicializar_ADC();
      bool x;
      while(1){

@@ -101,6 +101,11 @@ extern uint32_t getVarS_OUT(void);
 extern uint32_t getVarCOOL(void);
 extern uint32_t getVarMODO(void);
 
+/*Funciones de inicializacion del UART*/
+extern void UART_initPD(void);
+extern void UART_initUSR(uint32_t uart_1, uint32_t puerto, uint32_t pines_puerto, uint32_t clk, bool transmision,
+                         bool bits, bool paridad, uint8_t baudios, bool comunicacion, bool sobremuestreo,
+                         bool longitud, bool interrupcion1, bool interrupcion2);
 
 extern void setVarS_IN(void);
 extern void setVarS_OUT(void);
@@ -109,5 +114,7 @@ extern void setVarMODO(void);
 
 extern void S_IN(void);
 extern void S_OUT(void);
+
+UART *prueba;
 
 #endif
